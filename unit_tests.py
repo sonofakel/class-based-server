@@ -37,6 +37,14 @@ class TestCase(unittest.TestCase):
         with open(os.path.join("webroot", "a_web_page.html"), "rb") as f:
             self.assertEqual(f.read(), content)
 
+    def test_get_content_python_file(self):
+        path = "/make_time.py"
+
+        content = HttpServer.get_content(path)
+
+        with open(os.path.join("webroot", "make_time.py"), "rb") as f:
+            self.assertEqual(f.read(), content)
+
     def test_get_mimetype_file(self):
         path = "/a_web_page.html"
 

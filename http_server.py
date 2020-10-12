@@ -3,16 +3,15 @@ import sys
 import traceback
 import os
 import mimetypes
+import errno
+import os
+from pathlib import Path
 
-class HttpServer():
+
+class HttpServer:
 
     @staticmethod
-    def make_response(
-        code,
-        reason,
-        body=b"",
-        mimetype=b"text/plain"
-    ):
+    def make_response(code, reason, body=b"", mimetype=b"text/plain"):
         """
         returns a basic HTTP response
         Ex:
@@ -55,7 +54,8 @@ class HttpServer():
         Then you would return "/images/sample_1.png"
         """
 
-        return "TODO: COMPLETE THIS"  # TODO
+        return request.split(" ")[1]
+
 
 
     @staticmethod
@@ -87,8 +87,20 @@ class HttpServer():
 
         if path.endswith('/'):
             return b"text/plain"
+        elif path.endswith('.html'):
+            return b"text/html"
+        elif path.endswith('.png'):
+            return b'image/png'
+        elif path.endswith('.jpg'):
+            return b'image/jpeg'
+        elif path.endswith('.json'):
+            return b'text/json'
+        elif path.endswith('.py'):
+            return b'text/plain'
+        elif path.endswith('.txt'):
+            return b'text/plain'
         else:
-            return b"TODO: FINISH THE REST OF THESE CASES"  # TODO
+            return b'Unknown mimetype'
 
     @staticmethod
     def get_content(path):
@@ -100,6 +112,7 @@ class HttpServer():
 
           * If the requested path is a directory, then the content should
           be a plain-text listing of the contents of that directory.
+
 
           * If the path is a file, it should return the contents of that
             file.
@@ -124,7 +137,16 @@ class HttpServer():
             # so this should raise a FileNotFoundError.
         """
 
-        return b"Not implemented!"  # TODO: Complete this function.
+        p = Path(f'./webroot{path}')
+        contents = []
+        if p.exists():
+            if p.is_file():
+                return p.read_bytes()
+            if p.is_dir():
+                [(contents.append(file.name.encode())) for file in p.iterdir()]
+                return contents
+        raise FileNotFoundError(
+            errno.ENOENT, os.strerror(errno.ENOENT), path)
 
     def __init__(self, port):
         self.port = port
